@@ -1,31 +1,26 @@
-import java.util.ArrayDeque;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class FrontSystem {
-        private ArrayDeque<Request> queue = new ArrayDeque<Request>();
+    private BlockingQueue<Request> queue;
 
-        public synchronized void add(Request request) {
-            while (queue.size() > 2) {
-                try {
-                    wait();
-                } catch (InterruptedException e)  {
-                    Thread.currentThread().interrupt();
-                }
-            }
+    public FrontSystem() {
+        queue = new ArrayBlockingQueue<> (2, true);
+    }
 
-            queue.addLast(request);
-            notifyAll();
+    public void add(Request request) {
+        try {
+            this.queue.put(request);
+        } catch (InterruptedException e) {
+            throw new RuntimeException("QUEUE READING EXCEPTION:" + e);
         }
+    }
 
-        public synchronized Request get() {
-            while (queue.size() == 0) {
-                try {
-                    wait();
-                } catch (InterruptedException e)  {
-                    Thread.currentThread().interrupt();
-                }
-            }
-
-            notifyAll();
-            return queue.removeFirst();
+    public Request get() {
+        try {
+            return this.queue.take();
+        } catch (InterruptedException e) {
+            throw new RuntimeException("QUEUE READING EXCEPTION:" + e);
         }
+    }
 }

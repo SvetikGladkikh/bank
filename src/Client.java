@@ -1,8 +1,9 @@
-public class Client extends Thread {
+public class Client implements Runnable {
     private FrontSystem frontSystem;
+    private String name;
 
     Client(String name, FrontSystem frontSystem) {
-        super(name);
+        this.name = name;
         this.frontSystem = frontSystem;
     }
 
@@ -11,9 +12,9 @@ public class Client extends Thread {
         int sum = (int) ( Math.random() *  100);
         int numOfOperation = (int) ( Math.random() * 2);
         Operation operation = numOfOperation == 1 ? Operation.CREDIT : Operation.REPAYMENT;
+        Request request = new Request(this.name, sum, operation);
 
-        Request request = new Request(this.getName(), sum, operation);
         frontSystem.add(request);
-        System.out.println("Client " + this.getName() + " send request for " + operation + " " + sum + "$");
+        System.out.println("Client " + this.name + " send request for " + operation + " " + sum + "$");
     }
 }
